@@ -54,7 +54,7 @@ def student_csv(student_id):
                 app.notes or ""
             ])
 
-    return f"./static/{csv_filename}"
+    return csv_filename
 
 @shared_task(name="company_csv", ignore_result=False)
 def company_csv(company_id):

@@ -4,12 +4,16 @@
       <div class="d-flex align-items-center">
         <h4 class="mb-0">My Applications</h4>
         <div class="ms-auto d-flex gap-2">
-          <button class="btn btn-outline-primary btn-sm" @click="exportCSV">
-            <i class="bi bi-download me-1"></i>Export CSV
+          <button v-if="! is_loading" class="btn btn-outline-primary btn-sm" @click="exportCSV">
+            Export CSV
           </button>
-          <button class="btn btn-outline-danger btn-sm" @click="exportPDF">
-            <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+
+          <button v-else class="btn btn-sm btn-primary ms-auto " @click="exportCSV">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
           </button>
+          
         </div>
       </div>
     </div>
@@ -80,7 +84,6 @@
     </div>
   </div>
 
-  <!-- My Placements -->
   <div class="card mt-2 ms-4 me-4 mb-4" v-if="placements && placements.length > 0">
     <div class="card-header"><h5>🎉 My Placements</h5></div>
     <div class="card-body">
@@ -118,7 +121,9 @@ export default {
       applications: null,
       placements: [],
       exportMessage: null,
-      statuses: ['Applied', 'Shortlisted', 'Interview', 'Offer', 'Placed', 'Rejected']
+      statuses: ['Applied', 'Shortlisted', 'Interview', 'Offer', 'Placed', 'Rejected'],
+      task_id:null,
+      is_loading:false
     }
   },
   methods: {
@@ -154,47 +159,53 @@ export default {
     },
     async exportCSV() {
       try {
+        this.is_loading = true
+        this.exportMessage = null
+
         const response = await fetch('http://localhost:5000/exportstudentcsv', {
-          headers: { 'Authentication-Token': localStorage.getItem('token') }
+          headers: {
+            "Authentication-Token": localStorage.getItem("token"),
+            "Content-Type": "application/json"
+          }
         })
+
         if (!response.ok) {
           this.exportMessage = '✗ Export failed. Make sure Redis and Celery are running.'
+          this.is_loading = false
           return
         }
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'my_applications.csv'
-        a.click()
-        window.URL.revokeObjectURL(url)
-        this.exportMessage = null
+
+        const data = await response.json()
+        this.task_id = data.task_id
+
+        const poll_for_csv = setInterval(
+          async () => {
+            try {
+              const res = await fetch(`http://localhost:5000/result/${this.task_id}`, {
+                headers: {
+                  "Authentication-Token": localStorage.getItem("token"),
+                  "Content-Type": "application/json"
+                }
+              })
+              if (res.status == 202) {
+                console.log("CSV generation is in progress")
+              } else if (res.status == 200) {
+                clearInterval(poll_for_csv)
+                this.is_loading = false
+                window.location.href = `http://localhost:5000/result/${this.task_id}`
+              }
+            } catch (pollError) {
+              clearInterval(poll_for_csv)
+              this.is_loading = false
+              this.exportMessage = '✗ Export failed. Check server connection.'
+            }
+          }, 2000
+        )
       } catch (error) {
+        this.is_loading = false
         this.exportMessage = '✗ Export failed. Check server connection.'
       }
     },
-    async exportPDF() {
-      this.exportMessage = 'Generating PDF...'
-      try {
-        const response = await fetch('http://localhost:5000/exportstudentpdf', {
-          headers: { 'Authentication-Token': localStorage.getItem('token') }
-        })
-        if (!response.ok) {
-          this.exportMessage = '✗ PDF export failed. Make sure Redis and Celery are running.'
-          return
-        }
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'my_applications.pdf'
-        a.click()
-        window.URL.revokeObjectURL(url)
-        this.exportMessage = null
-      } catch (e) {
-        this.exportMessage = '✗ PDF export failed. Check server connection.'
-      }
-    }
   },
   mounted() {
     this.fetchApplications()

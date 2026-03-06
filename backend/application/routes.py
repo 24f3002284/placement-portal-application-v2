@@ -1,5 +1,5 @@
 from flask import current_app as app
-from flask import request
+from flask import request,send_from_directory
 from flask_security import auth_required, roles_required, current_user, hash_password
 from flask_security.utils import verify_and_update_password
 from .models import db, User, StudentProfile, CompanyProfile, PlacementDrive, Application, Placement
@@ -519,7 +519,7 @@ def my_placements():
 #  CELERY TASK ROUTES
 # ══════════════════════════════════════════════════════════════
 
-from .task import add_together, student_csv, company_csv, student_pdf, company_pdf, send_interview_reminders, send_monthly_report
+from .task import add_together, student_csv, company_csv, send_interview_reminders, send_monthly_report
 from celery.result import AsyncResult
 
 
@@ -529,17 +529,17 @@ def start_task():
     return {"result_id": result.id}
 
 
-@app.route("/result/<id>")
-def get_result(id):
-    result = AsyncResult(id)
-    return {"ready": result.ready(), "value": result.result if result.ready() else None}
+# @app.route("/result/<id>")
+# def get_result(id):  
+#     result = AsyncResult(id)
+#     return {"ready": result.ready(), "successful": result.successful(), "value": result.result if result.ready() else None}
 
 @app.route("/exportstudentcsv")
 @auth_required("token")
 @roles_required("student")
 def export_student_csv():
     result = student_csv.delay(current_user.id)
-    return {"result_id": result.id}
+    return {"task_id": result.id}
 
 
 @app.route("/exportcompanycsv")
@@ -550,33 +550,6 @@ def export_company_csv():
     return {"result_id": result.id}
 
 
-@app.route("/exportstudentpdf")
-@auth_required("token")
-@roles_required("student")
-def export_student_pdf():
-    from flask import send_from_directory
-    import os
-    result = student_pdf.delay(current_user.id)
-    filename = os.path.basename(result.get(timeout=60))
-    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-    return send_from_directory(static_dir, filename, as_attachment=True, download_name="my_applications.pdf")
-
-
-@app.route("/exportcompanypdf")
-@auth_required("token")
-@roles_required("company")
-def export_company_pdf():
-    from flask import send_from_directory
-    import os
-    result = company_pdf.delay(current_user.id)
-    filename = os.path.basename(result.get(timeout=60))
-    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-    return send_from_directory(static_dir, filename, as_attachment=True, download_name="company_report.pdf")
-
-
-# ══════════════════════════════════════════════════════════════
-#  HELPERS
-# ══════════════════════════════════════════════════════════════
 
 def _parse_date(val):
     if not val:
@@ -648,13 +621,27 @@ def check_export(result_id):
         return {"ready": False, "error": str(e)}, 503
 
 
-@app.route("/downloadcsv/<filename>")
-def download_csv(filename):
-    from flask import send_from_directory, request as req
+# @app.route("/downloadcsv/<filename>")
+# def download_csv(filename):
+#     from flask import send_from_directory, request as req
+#     import os
+#     # Accept token from query param since browser <a> tags cannot send headers
+#     token = req.args.get("token")
+#     if not token:
+#         return {"message": "Auth Required"}, 401
+#     static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+#     return send_from_directory(static_dir, filename, as_attachment=True)
+
+
+
+@app.route("/result/<id>")
+def download_csv(id):
     import os
-    # Accept token from query param since browser <a> tags cannot send headers
-    token = req.args.get("token")
-    if not token:
-        return {"message": "Auth Required"}, 401
-    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-    return send_from_directory(static_dir, filename, as_attachment=True)
+    result = AsyncResult(id)
+
+    if not result.ready():
+        return {"message": "CSV generation is in progress"}, 202
+    else:
+        filename = os.path.basename(str(result.result))
+        static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+        return send_from_directory(static_dir, filename, as_attachment=True), 200
