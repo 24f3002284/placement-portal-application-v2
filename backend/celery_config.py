@@ -1,3 +1,4 @@
-broker_url="redis://localhost:6379/0"
-result_backend="redis://localhost:6379/1"
-task_ignore_result=True
+broker_url = "redis://localhost:6379/0"
+result_backend = "redis://localhost:6379/1"
+task_ignore_result = True
+include = ["application.task"]   

@@ -10,7 +10,6 @@ class LocalConfig:
     WTF_CSRF_ENABLED = False
     SECURITY_PASSWORD_HASH = "bcrypt"
 
-    # MailHog (local email testing - no password needed)
     MAIL_SERVER = "localhost"
     MAIL_PORT = 1025
     MAIL_USE_TLS = False
@@ -20,14 +19,11 @@ class LocalConfig:
     MAIL_DEFAULT_SENDER = "noreply@placement.edu"
     ADMIN_EMAIL = "admin@placement.edu"
 
-    # Redis / Celery
     REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
     CELERY_BROKER_URL = REDIS_URL
     CELERY_RESULT_BACKEND = REDIS_URL
 
-    # Flask-Caching
     CACHE_TYPE = "SimpleCache"
     CACHE_DEFAULT_TIMEOUT = 60
 
-    # Google Chat Webhook (optional)
-    GCHAT_WEBHOOK_URL = os.environ.get("GCHAT_WEBHOOK_URL", "")
+    # GCHAT_WEBHOOK_URL = os.environ.get("GCHAT_WEBHOOK_URL", "")

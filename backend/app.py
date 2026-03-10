@@ -44,8 +44,23 @@ def create_app():
 app = create_app()
 celery = celery_init_app(app)
 
+from celery import Celery
+from celery.schedules import crontab
+from application.task import admin_monthly_report
+
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender: Celery, **kwargs):
+    # Calls test('hello') every 10 seconds.
+    sender.add_periodic_task(crontab(day_of_month=10,hour=11,minute=55), admin_monthly_report.s())
+    # sender.add_periodic_task(30.0, admin_monthly_report.s())
+
+
+
 from application.initial_data import *
 from application.routes import *
+from application.utility import render_email_template
+
+# print(render_email_template("Admin",[],"./templates/admin_monthly_report.html"))
 
 if __name__ == "__main__":
     app.run(debug=True)

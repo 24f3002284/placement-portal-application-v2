@@ -1,0 +1,171 @@
+# @shared_task(name="application.task.send_interview_reminders")
+# def send_interview_reminders():
+#     from flask import current_app
+#     tomorrow = date.today() + timedelta(days=1)
+#     interviews = Application.query.filter(
+#         Application.interview_date == tomorrow,
+#         Application.status == "Interview"
+#     ).all()
+
+#     if not interviews:
+#         return "No interviews scheduled for tomorrow"
+
+#     webhook_url = "https://chat.googleapis.com/v1/spaces/AAQAeNAnOpw/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=MqIDBOvWJsrYuc-7722lxc8mLoSZ9nP4dGfB-laBEbY"
+#     mail_username = current_app.config.get("MAIL_USERNAME", "")
+
+#     for app_rec in interviews:
+#         student = StudentProfile.query.filter_by(user_id=app_rec.student_id).first()
+#         drive = PlacementDrive.query.get(app_rec.drive_id)
+#         company = CompanyProfile.query.filter_by(user_id=drive.company_id).first() if drive else None
+#         if not student or not drive:
+#             continue
+
+#         msg = (
+#             f"Hi {student.name}! Reminder: You have an interview TOMORROW "
+#             f"for {drive.job_title} at {company.name if company else 'N/A'}. "
+#             f"Time: {app_rec.interview_time or 'TBD'}, "
+#             f"Venue: {app_rec.interview_venue or 'TBD'}. Good luck!"
+#         )
+
+#         if webhook_url:
+#             try:
+#                 requests.post(webhook_url, json={"text": msg}, timeout=5)
+#             except Exception as e:
+#                 print(f"GChat error: {e}")
+
+#         if mail_username:
+#             try:
+#                 from flask_mail import Mail, Message
+#                 mail = Mail(current_app)
+#                 mail.send(Message(
+#                     subject=f"Interview Reminder – {drive.job_title}",
+#                     recipients=[student.email], body=msg
+#                 ))
+#             except Exception as e:
+#                 print(f"Email error: {e}")
+
+#     return f"Reminders sent for {len(interviews)} interviews"
+
+
+# # ─── Deadline Reminder Job (Daily) ────────────────────────────────────────────
+# @shared_task(name="application.task.send_deadline_reminders")
+# def send_deadline_reminders():
+#     """Send reminders to eligible students whose application deadline is tomorrow."""
+#     from flask import current_app
+#     tomorrow = date.today() + timedelta(days=1)
+
+#     drives = PlacementDrive.query.filter(
+#         PlacementDrive.application_deadline == tomorrow,
+#         PlacementDrive.status == "Approved"
+#     ).all()
+
+#     if not drives:
+#         return "No application deadlines tomorrow"
+
+#     webhook_url = current_app.config.get("GCHAT_WEBHOOK_URL", "")
+#     mail_username = current_app.config.get("MAIL_USERNAME", "")
+#     reminded = 0
+
+#     for drive in drives:
+#         company = CompanyProfile.query.filter_by(user_id=drive.company_id).first()
+#         applied_ids = {a.student_id for a in Application.query.filter_by(drive_id=drive.id).all()}
+#         students = StudentProfile.query.filter_by(status="Active").all()
+#         eligible_unapplied = [s for s in students if s.user_id not in applied_ids]
+
+#         for student in eligible_unapplied:
+#             msg = (
+#                 f"Hi {student.name}! Deadline Reminder: The application for "
+#                 f"{drive.job_title} at {company.name if company else 'N/A'} "
+#                 f"closes TOMORROW ({tomorrow.strftime('%d %b %Y')}). "
+#                 f"Package: {drive.package or 'N/A'}. Don't miss it!"
+#             )
+
+#             if webhook_url:
+#                 try:
+#                     requests.post(webhook_url, json={"text": msg}, timeout=5)
+#                 except Exception as e:
+#                     print(f"GChat error: {e}")
+
+#             if mail_username and student.email:
+#                 try:
+#                     from flask_mail import Mail, Message
+#                     Mail(current_app).send(Message(
+#                         subject=f"Deadline Tomorrow – {drive.job_title}",
+#                         recipients=[student.email],
+#                         body=msg
+#                     ))
+#                 except Exception as e:
+#                     print(f"Email error: {e}")
+
+#             reminded += 1
+
+#     return f"Deadline reminders sent to {reminded} students across {len(drives)} drives"
+
+# @shared_task(name="application.task.send_monthly_report")
+# def send_monthly_report():
+#     from flask import current_app
+#     today = date.today()
+#     month_label = (today.replace(day=1) - timedelta(days=1)).strftime("%B %Y")
+#     mail_username = current_app.config.get("MAIL_USERNAME", "")
+#     admin_email = current_app.config.get("ADMIN_EMAIL", "")
+
+#     companies = CompanyProfile.query.filter_by(status="Approved").all()
+#     for company in companies:
+#         drives = PlacementDrive.query.filter_by(company_id=company.user_id).all()
+#         total_apps = sum(len(d.applications) for d in drives)
+#         placed = sum(len([a for a in d.applications if a.status == "Placed"]) for d in drives)
+
+#         drive_rows = "".join([
+#             f"<tr><td>{d.job_title}</td><td>{d.status}</td><td>{len(d.applications)}</td>"
+#             f"<td>{len([a for a in d.applications if a.status=='Placed'])}</td></tr>"
+#             for d in drives
+#         ])
+
+#         html = f"""<html><body style="font-family:Arial,sans-serif;padding:20px;">
+#         <h2>Monthly Placement Report – {month_label}</h2>
+#         <h3>{company.name}</h3>
+#         <table border="1" cellpadding="8" style="border-collapse:collapse;margin-bottom:20px;">
+#             <tr style="background:#1a237e;color:white;"><th>Metric</th><th>Count</th></tr>
+#             <tr><td>Total Drives</td><td>{len(drives)}</td></tr>
+#             <tr><td>Total Applications</td><td>{total_apps}</td></tr>
+#             <tr><td>Students Placed</td><td>{placed}</td></tr>
+#         </table>
+#         <table border="1" cellpadding="8" style="border-collapse:collapse;">
+#             <tr style="background:#1a237e;color:white;"><th>Job Title</th><th>Status</th><th>Applicants</th><th>Placed</th></tr>
+#             {drive_rows}
+#         </table></body></html>"""
+
+#         if mail_username and company.email:
+#             try:
+#                 from flask_mail import Mail, Message
+#                 Mail(current_app).send(Message(
+#                     subject=f"Monthly Placement Report – {month_label}",
+#                     recipients=[company.email], html=html
+#                 ))
+#             except Exception as e:
+#                 print(f"Email error ({company.email}): {e}")
+
+#     # Admin summary
+#     if mail_username and admin_email:
+#         try:
+#             from flask_mail import Mail, Message
+#             admin_html = f"""<html><body style="font-family:Arial,sans-serif;padding:20px;">
+#             <h2>System Report – {month_label}</h2>
+#             <table border="1" cellpadding="8" style="border-collapse:collapse;">
+#                 <tr style="background:#1a237e;color:white;"><th>Metric</th><th>Total</th></tr>
+#                 <tr><td>Students</td><td>{StudentProfile.query.count()}</td></tr>
+#                 <tr><td>Active Companies</td><td>{len(companies)}</td></tr>
+#                 <tr><td>Total Drives</td><td>{PlacementDrive.query.count()}</td></tr>
+#                 <tr><td>Total Applications</td><td>{Application.query.count()}</td></tr>
+#                 <tr><td>Total Placed</td><td>{Application.query.filter_by(status="Placed").count()}</td></tr>
+#             </table></body></html>"""
+#             Mail(current_app).send(Message(
+#                 subject=f"Admin System Report – {month_label}",
+#                 recipients=[admin_email], html=admin_html
+#             ))
+#         except Exception as e:
+#             print(f"Admin email error: {e}")
+
+#     return f"Monthly reports sent to {len(companies)} companies + admin"
+
+

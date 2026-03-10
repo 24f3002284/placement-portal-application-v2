@@ -6,6 +6,8 @@ from .models import db, User, StudentProfile, CompanyProfile, PlacementDrive, Ap
 from datetime import datetime, date
 from sqlalchemy import or_
 import sys
+from flask import jsonify
+
 
 
 def get_cache():
@@ -72,11 +74,6 @@ def register():
         return {"message": "Company registered. Awaiting admin approval."}, 201
 
     return {"message": "Invalid role"}, 400
-
-
-# ══════════════════════════════════════════════════════════════
-#  ADMIN
-# ══════════════════════════════════════════════════════════════
 
 @app.route("/api/admin-stats")
 @auth_required("token")
@@ -283,11 +280,6 @@ def all_applications():
         })
     return result, 200
 
-
-# ══════════════════════════════════════════════════════════════
-#  COMPANY
-# ══════════════════════════════════════════════════════════════
-
 @app.route("/api/company-profile")
 @auth_required("token")
 @roles_required("company")
@@ -422,11 +414,6 @@ def update_application(aid):
     db.session.commit()
     return {"message": f"Status updated to {status}"}, 200
 
-
-# ══════════════════════════════════════════════════════════════
-#  STUDENT
-# ══════════════════════════════════════════════════════════════
-
 @app.route("/api/student-profile")
 @auth_required("token")
 @roles_required("student")
@@ -514,12 +501,7 @@ def my_placements():
         })
     return result, 200
 
-
-# ══════════════════════════════════════════════════════════════
-#  CELERY TASK ROUTES
-# ══════════════════════════════════════════════════════════════
-
-from .task import add_together, student_csv, company_csv, send_interview_reminders, send_monthly_report
+from .task import add_together, student_csv
 from celery.result import AsyncResult
 
 
@@ -528,28 +510,12 @@ def start_task():
     result = add_together.delay(5, 6)
     return {"result_id": result.id}
 
-
-# @app.route("/result/<id>")
-# def get_result(id):  
-#     result = AsyncResult(id)
-#     return {"ready": result.ready(), "successful": result.successful(), "value": result.result if result.ready() else None}
-
 @app.route("/exportstudentcsv")
 @auth_required("token")
 @roles_required("student")
 def export_student_csv():
     result = student_csv.delay(current_user.id)
     return {"task_id": result.id}
-
-
-@app.route("/exportcompanycsv")
-@auth_required("token")
-@roles_required("company")
-def export_company_csv():
-    result = company_csv.delay(current_user.id)
-    return {"result_id": result.id}
-
-
 
 def _parse_date(val):
     if not val:
@@ -601,38 +567,24 @@ def _drive_dict_simple(drive):
         "status": drive.status, "applicant_count": len(drive.applications)
     }
 
-@app.route("/checkexport/<result_id>")
-@auth_required("token")
-def check_export(result_id):
-    import os
-    # Use current_app.celery (set in app.py) so we never do a runtime import
-    # inside the request handler — that was causing the AssertionError:
-    # "Popped wrong app context".
-    try:
-        result = current_app.celery.AsyncResult(result_id)
-        state = result.state
-        if state == "SUCCESS":
-            filename = os.path.basename(str(result.result))
-            return {"ready": True, "filename": filename}
-        elif state == "FAILURE":
-            return {"ready": False, "error": "Task failed"}, 500
-        return {"ready": False, "state": state}
-    except Exception as e:
-        return {"ready": False, "error": str(e)}, 503
-
-
-# @app.route("/downloadcsv/<filename>")
-# def download_csv(filename):
-#     from flask import send_from_directory, request as req
+# @app.route("/checkexport/<result_id>")
+# @auth_required("token")
+# def check_export(result_id):
 #     import os
-#     # Accept token from query param since browser <a> tags cannot send headers
-#     token = req.args.get("token")
-#     if not token:
-#         return {"message": "Auth Required"}, 401
-#     static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-#     return send_from_directory(static_dir, filename, as_attachment=True)
-
-
+#     # Use current_app.celery (set in app.py) so we never do a runtime import
+#     # inside the request handler — that was causing the AssertionError:
+#     # "Popped wrong app context".
+#     try:
+#         result = current_app.celery.AsyncResult(result_id)
+#         state = result.state
+#         if state == "SUCCESS":
+#             filename = os.path.basename(str(result.result))
+#             return {"ready": True, "filename": filename}
+#         elif state == "FAILURE":
+#             return {"ready": False, "error": "Task failed"}, 500
+#         return {"ready": False, "state": state}
+#     except Exception as e:
+#         return {"ready": False, "error": str(e)}, 503
 
 @app.route("/result/<id>")
 def download_csv(id):
