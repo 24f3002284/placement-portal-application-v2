@@ -6,7 +6,7 @@ Instructions:
   pip install -r requirements.txt 
   python app.py' in one terminal.
 
-  2) Please run 'cd frontend 
+  2) Please run 'cd frontendf 
   npm install 
   npm run serve' in the second terminal.
 
@@ -75,7 +75,7 @@ Backend(bash):
  3) python app.py
 
 Frontend(bash):
- 1) cd frontend
+ 1) cd frontendf
  2) npm install
  3) npm run serve
 Celery Worker (for background tasks)(bash):
