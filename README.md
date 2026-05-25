@@ -1,6 +1,22 @@
 # placement-portal-application-v2
 A full-stack web application for managing campus placements. Students can apply for job drives, companies can post vacancies and manage applications, and admins oversee the entire process.
 
+Instructions:
+  Please run 'cd backend
+  pip install -r requirements.txt
+  python app.py' in one terminal.
+
+  Please run 'cd frontend
+  npm install
+  npm run serve' in the second terminal.
+
+  Please run 'sudo apt-get install redis-server -y
+  redis-server &
+  cd backend
+  celery -A celery_config worker --loglevel=info' 
+  in the third and final termina.
+
+  
 Tech Stack:
 Backend:
   Python, Flask
