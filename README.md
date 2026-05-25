@@ -13,7 +13,7 @@ Instructions:
   3) Please run 'sudo apt-get install redis-server -y 
   redis-server & 
   cd backend 
-  celery -A celery_config worker --loglevel=info' 
+  celery -A app.celery worker --loglevel=info' 
   in the third and final terminal.
 
   
