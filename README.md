@@ -32,55 +32,55 @@ Frontend:
 
 Features:
 Student:
- a) Register and manage profile (CGPA, branch, skills, experience)
- b) Upload resume via profile update
- c) Browse and apply for placement drives
- d) Track application status (Applied → Shortlisted → Interview → Offer → Placed / Rejected)
- e) View interview schedule (date, time, venue)
+ 1) Register and manage profile (CGPA, branch, skills, experience)
+ 2) Upload resume via profile update
+ 3) Browse and apply for placement drives
+ 4) Track application status (Applied → Shortlisted → Interview → Offer → Placed / Rejected)
+ 5) View interview schedule (date, time, venue)
 
 Company:
-  Register and wait for admin approval before posting drives
-  Create placement drives with detailed job info (package, eligible branches, min CGPA, skills required)
-  View and manage applications for each drive
-  Move students through placement stages
-  Schedule interview timings for shortlisted students
+ 1) Register and wait for admin approval before posting drives
+ 2) Create placement drives with detailed job info (package, eligible branches, min CGPA, skills required)
+ 3) View and manage applications for each drive
+ 4) Move students through placement stages
+ 5) Schedule interview timings for shortlisted students
 
 Admin:
-  Approve or reject company registrations
-  Approve or reject placement drives
-  Blacklist students or companies
-  View all applications and placements
-  Search across students and companies
-  Export reports as CSV
-  Monthly placement summary reports via email
+ 1) Approve or reject company registrations
+ 2) Approve or reject placement drives
+ 3) Blacklist students or companies
+ 4) View all applications and placements
+ 5) Search across students and companies
+ 6) Export reports as CSV
+ 7) Monthly placement summary reports via email
 
 Roles:
-  Role        Capabilities
-  Admin       Full control — approve, reject, blacklist, view all data
-  Company     Post drives, manage applicants, schedule interviews
-  Student     Browse drives, apply, track status
+ 1) Role        Capabilities
+ 2) Admin       Full control — approve, reject, blacklist, view all data
+ 3) Company     Post drives, manage applicants, schedule interviews
+ 4) Student     Browse drives, apply, track status
 
 
 Application Status Flow: Applied -> Shortlisted -> Interview -> Offer -> Placed or Rejected
 
 Installation & Setup:
 Prerequisites:
-  Python 3.10+
-  Node.js
-  Redis (for Celery)
+ 1) Python 3.10+
+ 2) Node.js
+ 3) Redis (for Celery)
 
 Backend(bash):
-  cd backend
-  pip install -r requirements.txt
-  python app.py
+ 1) cd backend
+ 2) pip install -r requirements.txt
+ 3) python app.py
 
 Frontend(bash):
-  cd frontend
-  npm install
-  npm run serve
+ 1) cd frontend
+ 2) npm install
+ 3) npm run serve
 Celery Worker (for background tasks)(bash):
-  cd backend
-  celery -A celery_config worker --loglevel=info
+ 1) cd backend
+ 2) celery -A celery_config worker --loglevel=info
   
 The backend runs on http://localhost:5000 and the frontend on http://localhost:8080
 
