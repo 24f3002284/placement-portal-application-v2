@@ -19,24 +19,24 @@ Instructions:
   
 Tech Stack:
 Backend:
-  Python, Flask
-  Flask-Security (authentication & role-based access)
-  Flask-SQLAlchemy + SQLite
-  Celery + Redis (background tasks)
-  Flask-Mail (email notifications)
-  Flask-Caching
+ 1) Python, Flask
+ 2) Flask-Security (authentication & role-based access)
+ 3) Flask-SQLAlchemy + SQLite
+ 4) Celery + Redis (background tasks)
+ 5) Flask-Mail (email notifications)
+ 6) Flask-Caching
 
 Frontend:
-  Vue.js 3
-  Vue Router
+ 1) Vue.js 3
+ 2) Vue Router
 
 Features:
 Student:
-  Register and manage profile (CGPA, branch, skills, experience)
-  Upload resume via profile update
-  Browse and apply for placement drives
-  Track application status (Applied → Shortlisted → Interview → Offer → Placed / Rejected)
-  View interview schedule (date, time, venue)
+ a) Register and manage profile (CGPA, branch, skills, experience)
+ b) Upload resume via profile update
+ c) Browse and apply for placement drives
+ d) Track application status (Applied → Shortlisted → Interview → Offer → Placed / Rejected)
+ e) View interview schedule (date, time, venue)
 
 Company:
   Register and wait for admin approval before posting drives
