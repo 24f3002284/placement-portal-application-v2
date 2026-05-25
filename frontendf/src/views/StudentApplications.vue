@@ -137,7 +137,7 @@ export default {
     },
     async fetchApplications() {
       try {
-        const response = await fetch('http://localhost:5000/api/my-applications', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/my-applications', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -149,7 +149,7 @@ export default {
     },
     async fetchPlacements() {
       try {
-        const response = await fetch('http://localhost:5000/api/my-placements', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/my-placements', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -162,7 +162,7 @@ export default {
         this.is_loading = true
         this.exportMessage = null
 
-        const response = await fetch('http://localhost:5000/exportstudentcsv', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/exportstudentcsv', {
           headers: {
             "Authentication-Token": localStorage.getItem("token"),
             "Content-Type": "application/json"
@@ -181,7 +181,7 @@ export default {
         const poll_for_csv = setInterval(
           async () => {
             try {
-              const res = await fetch(`http://localhost:5000/result/${this.task_id}`, {
+              const res = await fetch(`${import.meta.env.VITE_API_URL}/result/${this.task_id}`, {
                 headers: {
                   "Authentication-Token": localStorage.getItem("token"),
                   "Content-Type": "application/json"
@@ -192,7 +192,7 @@ export default {
               } else if (res.status == 200) {
                 clearInterval(poll_for_csv)
                 this.is_loading = false
-                window.location.href = `http://localhost:5000/result/${this.task_id}`
+                window.location.href = `${import.meta.env.VITE_API_URL}/result/${this.task_id}`
               }
             } catch (pollError) {
               clearInterval(poll_for_csv)

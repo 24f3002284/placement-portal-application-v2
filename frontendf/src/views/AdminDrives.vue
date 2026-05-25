@@ -77,7 +77,7 @@ export default {
   methods: {
     async fetchDrives() {
       try {
-        const response = await fetch('http://localhost:5000/api/all-drives', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/all-drives', {
           method: 'GET',
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
@@ -92,7 +92,7 @@ export default {
       }
     },
     async approveDrive(drive_id) {
-      const response = await fetch(`http://localhost:5000/api/approve-drive/${drive_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/approve-drive/${drive_id}`, {
         method: 'GET',
         headers: { 'Authentication-Token': localStorage.getItem('token') }
       })
@@ -104,7 +104,7 @@ export default {
       }
     },
     async rejectDrive(drive_id) {
-      const response = await fetch(`http://localhost:5000/api/reject-drive/${drive_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reject-drive/${drive_id}`, {
         method: 'GET',
         headers: { 'Authentication-Token': localStorage.getItem('token') }
       })

@@ -96,7 +96,7 @@ export default {
     },
     async fetchApplications() {
       try {
-        const res = await fetch('http://localhost:5000/api/all-applications', {
+        const res = await fetch('${import.meta.env.VITE_API_URL}/api/all-applications', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (res.ok) {

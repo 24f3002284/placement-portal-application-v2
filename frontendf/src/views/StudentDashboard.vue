@@ -66,7 +66,7 @@ export default {
     async fetchDrives() {
       try {
         const q = encodeURIComponent(this.searchQuery)
-        const response = await fetch(`http://localhost:5000/api/get-drives?q=${q}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/get-drives?q=${q}`, {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -78,7 +78,7 @@ export default {
     },
     async applyDrive(drive_id) {
       try {
-        const response = await fetch(`http://localhost:5000/api/apply-drive/${drive_id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/apply-drive/${drive_id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
         })

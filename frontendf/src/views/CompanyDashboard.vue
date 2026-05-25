@@ -105,7 +105,7 @@ export default {
     },
     async fetchProfile() {
       try {
-        const response = await fetch('http://localhost:5000/api/company-profile', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/company-profile', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -117,7 +117,7 @@ export default {
     },
     async fetchDrives() {
       try {
-        const response = await fetch('http://localhost:5000/api/get-drives', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/get-drives', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -130,7 +130,7 @@ export default {
     async closeDrive(drive_id) {
       if (!confirm('Are you sure you want to close this drive? Students will no longer be able to apply.')) return
       try {
-        const response = await fetch(`http://localhost:5000/api/close-drive/${drive_id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/close-drive/${drive_id}`, {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         const data = await response.json()
@@ -145,7 +145,7 @@ export default {
     async exportCSV() {
       this.exportMessage = 'Preparing download...'
       try {
-        const response = await fetch('http://localhost:5000/exportcompanycsv', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/exportcompanycsv', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (!response.ok) {
@@ -167,7 +167,7 @@ export default {
     async exportPDF() {
       this.exportMessage = 'Generating PDF...'
       try {
-        const response = await fetch('http://localhost:5000/exportcompanypdf', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/exportcompanypdf', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (!response.ok) {

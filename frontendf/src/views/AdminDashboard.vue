@@ -70,7 +70,7 @@ export default {
   methods: {
     async fetchStats() {
       try {
-        const response = await fetch('http://localhost:5000/api/admin-stats', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/admin-stats', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -82,7 +82,7 @@ export default {
     },
     async fetchCompanies() {
       try {
-        const response = await fetch('http://localhost:5000/api/companies', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/companies', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         const data = await response.json()
@@ -95,7 +95,7 @@ export default {
     },
     async fetchStudents() {
       try {
-        const response = await fetch('http://localhost:5000/api/students', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/students', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         const data = await response.json()

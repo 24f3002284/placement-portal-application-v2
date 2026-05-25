@@ -55,7 +55,7 @@ export default {
   methods: {
     async fetchProfile() {
       try {
-        const response = await fetch('http://localhost:5000/api/student-profile', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/student-profile', {
           headers: { 'Authentication-Token': localStorage.getItem('token') }
         })
         if (response.ok) {
@@ -73,7 +73,7 @@ export default {
     },
     async updateProfile() {
       try {
-        const response = await fetch('http://localhost:5000/api/update-student-profile', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/api/update-student-profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') },
           body: JSON.stringify(this.formdata)

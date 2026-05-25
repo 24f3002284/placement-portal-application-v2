@@ -112,7 +112,7 @@ export default {
       this.searched = false
       try {
         const response = await fetch(
-          `http://localhost:5000/api/admin-search?query_type=${this.query_type}&query=${encodeURIComponent(this.query)}`,
+          `${import.meta.env.VITE_API_URL}/api/admin-search?query_type=${this.query_type}&query=${encodeURIComponent(this.query)}`,
           { headers: { 'Authentication-Token': localStorage.getItem('token') } }
         )
         if (response.ok) {

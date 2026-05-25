@@ -91,14 +91,14 @@ export default {
   methods: {
     async fetchApplications() {
       const id = this.$route.params.id
-      const res = await fetch(`http://localhost:5000/api/drive-applications/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/drive-applications/${id}`, {
         headers: { 'Authentication-Token': localStorage.getItem('token') }
       })
       if (res.ok) this.applications = await res.json()
       else if (res.status === 401) this.$router.push('/login')
     },
     async setStatus(app_id, status, extra = {}) {
-      const res = await fetch(`http://localhost:5000/api/update-application/${app_id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/update-application/${app_id}`, {
         method: 'POST',
         headers: { 'Authentication-Token': localStorage.getItem('token'), 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, ...extra })

@@ -85,7 +85,7 @@ export default ({
   },
   methods: {
     async approveCompany(company_id) {
-      const response = await fetch(`http://localhost:5000/api/approve-company/${company_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/approve-company/${company_id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
       })
@@ -102,7 +102,7 @@ export default ({
       }
     },
     async rejectCompany(company_id) {
-      const response = await fetch(`http://localhost:5000/api/reject-company/${company_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reject-company/${company_id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
       })
@@ -117,7 +117,7 @@ export default ({
       }
     },
     async blacklistCompany(company_id) {
-      const response = await fetch(`http://localhost:5000/api/blacklist-company/${company_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/blacklist-company/${company_id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
       })
@@ -129,7 +129,7 @@ export default ({
       }
     },
     async unblacklistCompany(company_id) {
-      const response = await fetch(`http://localhost:5000/api/unblacklist-company/${company_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/unblacklist-company/${company_id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
       })
@@ -141,7 +141,7 @@ export default ({
       }
     },
     async blacklistStudent(student_id) {
-      const response = await fetch(`http://localhost:5000/api/blacklist-student/${student_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/blacklist-student/${student_id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
       })
@@ -156,7 +156,7 @@ export default ({
       }
     },
     async unblacklistStudent(student_id) {
-      const response = await fetch(`http://localhost:5000/api/unblacklist-student/${student_id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/unblacklist-student/${student_id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authentication-Token': localStorage.getItem('token') }
       })

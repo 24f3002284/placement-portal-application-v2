@@ -71,7 +71,7 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await fetch('http://localhost:5000/register?role=student', {
+        const response = await fetch('${import.meta.env.VITE_API_URL}/register?role=student', {
           method: 'POST',
           body: JSON.stringify(this.formdata),
           headers: { 'Content-Type': 'application/json' }
